@@ -6,15 +6,32 @@ jobs:
       - image: cimg/python:3.11
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            - v1-pip-{{ checksum "requirements.txt" }}
       - run:
           name: Install dependencies
           command: pip install -r requirements.txt
+      - save_cache:
+          paths:
+            - ~/.cache/pip
+          key: v1-pip-{{ checksum "requirements.txt" }}
       - run:
           name: Run tests
           command: pytest
 
+  lint:
+    docker:
+      - image: cimg/python:3.11
+    steps:
+      - checkout
+      - run:
+          name: Check code style with Black
+          command: black --check .
+
 workflows:
   version: 2
-  build-and-test:
+  build-test-lint:
     jobs:
       - test
+      - lint

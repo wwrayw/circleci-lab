@@ -1,4 +1,3 @@
-
 from app import sum_numbers
 
 def test_sum_positive():

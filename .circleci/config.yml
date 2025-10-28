@@ -6,16 +6,38 @@ jobs:
       - image: cimg/python:3.11
     steps:
       - checkout
-      - run: pip install -r requirements.txt
-      - run: pytest
+      - restore_cache:
+          keys:
+            - v1-deps-{{ checksum "requirements.txt" }}
+      - run:
+          name: Install dependencies
+          command: pip install -r requirements.txt
+      - save_cache:
+          paths:
+            - ~/.cache/pip
+          key: v1-deps-{{ checksum "requirements.txt" }}
+      - run:
+          name: Run tests
+          command: pytest
 
   lint:
     docker:
       - image: cimg/python:3.11
     steps:
       - checkout
-      - run: pip install black
-      - run: black --check .
+      - restore_cache:
+          keys:
+            - v1-deps-black
+      - run:
+          name: Install Black
+          command: pip install black
+      - save_cache:
+          paths:
+            - ~/.cache/pip
+          key: v1-deps-black
+      - run:
+          name: Format code automatically
+          command: black .
 
 workflows:
   version: 2
